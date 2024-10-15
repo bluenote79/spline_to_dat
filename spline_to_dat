@@ -5,9 +5,9 @@ import os
 import os.path
 
 COMMAND_ID = "Airfoil"
-SE01_SELECTION1_COMMAND_ID = "select spline"
+SE01_SELECTION1_COMMAND_ID = "select splines"
 IN01_VALUE_INPUT_ID = "Airfoilname"
-IN02_VALUE_INPUT_ID = "Airfoilname"
+IN02_VALUE_INPUT_ID = "Punkte"
 
 
 _handlers = []
@@ -36,14 +36,22 @@ class FoilCommandExecuteHandler(adsk.core.CommandEventHandler):
             command = args.firingEvent.sender
             inputs = command.commandInputs
 
-            if inputs.itemById(SE01_SELECTION1_COMMAND_ID).selection(0).isValid == True:
+            if inputs.itemById(SE01_SELECTION1_COMMAND_ID).selectionCount == 1:
                 spline = inputs.itemById(SE01_SELECTION1_COMMAND_ID).selection(0).entity
+                splineO = None
+                splineU = None
+            elif inputs.itemById(SE01_SELECTION1_COMMAND_ID).selectionCount == 2:
+                splineO = inputs.itemById(SE01_SELECTION1_COMMAND_ID).selection(0).entity
+                splineU = inputs.itemById(SE01_SELECTION1_COMMAND_ID).selection(1).entity
+                spline = None
+
 
             name = inputs.itemById(IN01_VALUE_INPUT_ID)
             count = inputs.itemById(IN02_VALUE_INPUT_ID)
+            
            
             foil = Foil()
-            foil.Execute(spline, name.value, count.value)
+            foil.Execute(spline, name.value, count.value, splineO, splineU)
 
         except:
             if ui:
@@ -63,25 +71,64 @@ class FoilCommandDestroyHandler(adsk.core.CommandEventHandler):
 
 
 class Foil:
-    def Execute(self, spline, name, punkte):
+    def Execute(self, spline, name, punkte, splineO, splineU):
 
-        sketchP = spline.parentSketch
-        planeP = sketchP.referencePlane
 
-        punkte = 121
-        for i in range(1, punkte):
-            spline.addFitPoint(i/punkte)
+        if splineO == None:
+            sketchP = spline.parentSketch
+            planeP = sketchP.referencePlane
 
-        pointlist = spline.fitPoints
+            for i in range(1, int(punkte)):
+                spline.addFitPoint(i/punkte)
 
-        arrayp = []
-        for i in range(pointlist.count):
-            arrayp.append(pointlist.item(i).geometry.asArray())
-        
-        rootlength = arrayp[0][0]
-        scaled = [(arrayp[i][0] / rootlength, arrayp[i][1] / rootlength) for i in range(len(arrayp))]
+            pointlist = spline.fitPoints
 
-        #ui.messageBox(str(scaled))
+            arrayp = []
+            for i in range(pointlist.count):
+                arrayp.append(pointlist.item(i).geometry.asArray())
+            
+            rootlength = arrayp[0][0]
+            scaled = [(arrayp[i][0] / rootlength, arrayp[i][1] / rootlength) for i in range(len(arrayp))]
+
+        else:
+            sketchP = splineO.parentSketch
+            planeP = sketchP.referencePlane
+
+            ar1 = splineO.startSketchPoint.geometry.asArray()
+            ar2 = splineO.endSketchPoint.geometry.asArray()
+            if ar1[0] > ar2[0]:
+                rootlength = ar1[0]
+            else:
+                rootlength = ar2[0]
+
+
+            collLines = adsk.core.ObjectCollection.create()
+
+            for i in range(1, int(punkte) + 1):
+                  pu = adsk.core.Point3D.create(i * rootlength  / (punkte), -10, 0)
+                  po = adsk.core.Point3D.create(i * rootlength / (punkte), 10, 0)
+                  
+                  line = sketchP.sketchCurves.sketchLines.addByTwoPoints(pu, po)
+                  collLines.add(line)
+
+            collOben = splineO.intersections(collLines)
+            collUnten = splineU.intersections(collLines)
+
+            arO = []
+            arU = []
+
+            for i in range(len(collOben[2])):
+                arO.append(collOben[2][i].asArray())
+                arU.append(collUnten[2][i].asArray())
+
+            scaledO = [(arO[i][0] / rootlength, arO[i][1] / rootlength) for i in range(len(arO))]
+            scaledU = [(arU[i][0] / rootlength, arU[i][1] / rootlength) for i in range(len(arU))]
+            origin = [(0,0)]
+
+            scaled = list(reversed(scaledO)) + list(origin) + list(scaledU)
+            for lines in collLines:
+                lines.deleteMe()
+
 
         msg = ''
         # Set styles of file dialog.
@@ -136,19 +183,17 @@ class FoilCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             inputs = args.command.commandInputs
 
             inst_text1 = """ <p><strong>Instructions:</strong></p> \
-                <p>Sketch Airfoil as FittedSpline on xy-Plane beginning at the tail of the top. Go to the nose at the sketch origin and from there sketch the bottom to the tail.\
+                <br><p>Option 1:<br>Sketch Airfoil as FittedSpline on xy-Plane beginning at the tail of the top. Go to the nose at the sketch origin and from there sketch the bottom to the tail.<\p>\
+                <br><p>Option 2: <br>Sketch two control point splines. The first of two selections must be the top of the airfoil.
                 
             """
 
-            i1 = inputs.addSelectionInput(SE01_SELECTION1_COMMAND_ID, SE01_SELECTION1_COMMAND_ID, "select spline")
+            i1 = inputs.addSelectionInput(SE01_SELECTION1_COMMAND_ID, SE01_SELECTION1_COMMAND_ID, "select splines")
             i1.addSelectionFilter(adsk.core.SelectionCommandInput.SketchCurves)
-            i1.setSelectionLimits(0, 1)
+            i1.setSelectionLimits(0, 2)
             i2 = inputs.addStringValueInput(IN01_VALUE_INPUT_ID, "Airfoilname", "Airfoilname") 
-            i3 = inputs.addStringValueInput(IN02_VALUE_INPUT_ID, "Punkte hinzufügen", "100")
+            i3 = inputs.addValueInput(IN02_VALUE_INPUT_ID, "Punkte hinzufügen", "", adsk.core.ValueInput.createByString("50"))
             i4 = inputs.addTextBoxCommandInput('fullWidth_textBox', '', inst_text1, 12, True)
-
-           
-
            
         except:
             if ui:
