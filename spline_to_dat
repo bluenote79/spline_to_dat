@@ -1,6 +1,8 @@
 import adsk.core, adsk.fusion, adsk.cam, traceback
 import os
 import os.path
+import math
+from math import pi
 
 COMMAND_ID = "Airfoil"
 SE01_SELECTION1_COMMAND_ID = "select splines"
@@ -71,6 +73,16 @@ class FoilCommandDestroyHandler(adsk.core.CommandEventHandler):
 class Foil:
     def Execute(self, spline, name, punkte, splineO, splineU):
 
+        def cos_verteilung(punkte: int, rootlength: float):
+            x_values = []
+            step = math.pi / (punkte - 1)
+
+            for i in range(punkte):
+                theta = i * step / 2
+                x = (1 - math.cos(theta)) 
+                x_values.append(x * rootlength)
+        
+            return x_values
 
         if splineO == None:
             sketchP = spline.parentSketch
@@ -99,34 +111,29 @@ class Foil:
             else:
                 rootlength = ar2[0]
 
+            x_verteilung = cos_verteilung(int(punkte), rootlength)
 
-            collLines = adsk.core.ObjectCollection.create()
+            O = []
+            U = []
+            
+            for i in range(1,len(x_verteilung)):    #1
+                collLines = adsk.core.ObjectCollection.create()
+                pu = adsk.core.Point3D.create(float(x_verteilung[i]), -10, 0)
+                po = adsk.core.Point3D.create(float(x_verteilung[i]), 10, 0)
+                line = sketchP.sketchCurves.sketchLines.addByTwoPoints(pu, po)
+                collLines.add(line)
+                O.append(splineO.intersections(collLines)[2][0].asArray())
+                U.append(splineU.intersections(collLines)[2][0].asArray())
+                line.deleteMe()
+            
+            scaledO = [(O[i][0] / rootlength, O[i][1]) for i in range(len(O)-1)]
+            scaledO.append((1, O[-1][1]))
+            scaledU = [(U[i][0] / rootlength, U[i][1]) for i in range(len(U)-1)]
+            scaledU.append((1, O[-1][1]))
 
-            for i in range(1, int(punkte) + 1):
-                  pu = adsk.core.Point3D.create(i * rootlength  / (punkte), -10, 0)
-                  po = adsk.core.Point3D.create(i * rootlength / (punkte), 10, 0)
-                  
-                  line = sketchP.sketchCurves.sketchLines.addByTwoPoints(pu, po)
-                  collLines.add(line)
-
-            collOben = splineO.intersections(collLines)
-            collUnten = splineU.intersections(collLines)
-
-            arO = []
-            arU = []
-
-            for i in range(len(collOben[2])):
-                arO.append(collOben[2][i].asArray())
-                arU.append(collUnten[2][i].asArray())
-
-            scaledO = [(arO[i][0] / rootlength, arO[i][1] / rootlength) for i in range(len(arO))]
-            scaledU = [(arU[i][0] / rootlength, arU[i][1] / rootlength) for i in range(len(arU))]
             origin = [(0,0)]
 
             scaled = list(reversed(scaledO)) + list(origin) + list(scaledU)
-            for lines in collLines:
-                lines.deleteMe()
-
 
         msg = ''
         # Set styles of file dialog.
