@@ -1,3 +1,4 @@
+
 import adsk.core, adsk.fusion, adsk.cam, traceback
 import os
 import os.path
@@ -126,9 +127,9 @@ class Foil:
                 U.append(splineU.intersections(collLines)[2][0].asArray())
                 line.deleteMe()
             
-            scaledO = [(O[i][0] / rootlength, O[i][1]) for i in range(len(O)-1)]
+            scaledO = [(O[i][0] / rootlength, O[i][1] / rootlength) for i in range(len(O)-1)]
             scaledO.append((1, O[-1][1]))
-            scaledU = [(U[i][0] / rootlength, U[i][1]) for i in range(len(U)-1)]
+            scaledU = [(U[i][0] / rootlength, U[i][1] / rootlength) for i in range(len(U)-1)]
             scaledU.append((1, O[-1][1]))
 
             origin = [(0,0)]
