@@ -14,6 +14,12 @@ The skript lets you select the spline, adds the selected amount off fitpoints an
 
 **Usage:**
 
+## Option 1: Sketch an airfoil to xy-plane using a fitted spline.
+
+1. Select the spline.
+2. Enter a name for the spline.
+3. Decide how many points should be added to the dat-file.
+4. Click OK to start file save dialogue.
 
 <picture>
 
@@ -21,8 +27,12 @@ The skript lets you select the spline, adds the selected amount off fitpoints an
   
 </picture>
 
+## Option 2: Sketch two controlpoint splines.
 
-
+1. Select the splines. The first selection must be the top curve.
+2. Enter a name for the spline.
+3. Decide how many points should be added to the dat-file.
+4. Click OK to start file save dialogue.
 
 <picture>
 
