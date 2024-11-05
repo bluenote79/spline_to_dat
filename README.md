@@ -5,16 +5,16 @@ Sketch a fittet spline from the tail along the top of the airfoil to origin in x
 The skript lets you select the spline, adds the selected amount off fitpoints and writes the normalized data to a dat-file in selig-format.
 
 
-**Install:**
+## **Install:**
 1. In Fusion 360 go to Utilities > ADD-INS > Skripts and Add-Ins.
 2. Create a new script (chose Script, Python and spline_to_dat as name)
 3. Right click on the script > Open file location
 4. Overwrite the spline_to_dat.py with the one from here.
 
 
-**Usage:**
+## **Usage:**
 
-## Option 1: Sketch an airfoil to xy-plane using a fitted spline.
+### Option 1: Sketch an airfoil to xy-plane using a fitted spline.
 
 1. Sketch the spline beginning at the trailing edge. Sketch along the top of the airfoil. Add a point at the sketch origin. Sketch the bottom and end at the trailing edge.
 2. Select the spline.
@@ -28,7 +28,7 @@ The skript lets you select the spline, adds the selected amount off fitpoints an
   
 </picture>
 
-## Option 2: Sketch two controlpoint splines.
+### Option 2: Sketch two controlpoint splines.
 
 1. Sketch the two splines. They must be coincident at the sketch origin.
 2. Select the splines. The first selection must be the top curve.
