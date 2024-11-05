@@ -17,6 +17,15 @@ The skript lets you select the spline, adds the selected amount off fitpoints an
 
 <picture>
 
-  <img alt="Illustrates usage of script" src="https://github.com/bluenote79/spline_to_dat/blob/main/eggshaped_spans_for_fusion360/eggs.gif">
+  <img alt="Illustrates usage of script" src="https://github.com/bluenote79/spline_to_dat/blob/main/option1.jpg">
+  
+</picture>
 
+
+
+
+<picture>
+
+  <img alt="Illustrates usage of script" src="https://github.com/bluenote79/spline_to_dat/blob/main/option2.jpg">
+  
 </picture>
