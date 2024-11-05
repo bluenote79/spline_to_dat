@@ -10,3 +10,13 @@ The skript lets you select the spline, adds the selected amount off fitpoints an
 2. Create a new script (chose Script, Python and spline_to_dat as name)
 3. Right click on the script > Open file location
 4. Overwrite the spline_to_dat.py with the one from here.
+
+
+**Usage:**
+
+
+<picture>
+
+  <img alt="Illustrates usage of script" src="https://github.com/bluenote79/spline_to_dat/blob/main/eggshaped_spans_for_fusion360/eggs.gif">
+
+</picture>
