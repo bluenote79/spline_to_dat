@@ -190,7 +190,7 @@ class FoilCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
             inst_text1 = """ <p><strong>Instructions:</strong></p> \
                 <br><p>Option 1:<br>Sketch Airfoil as FittedSpline on xy-Plane beginning at the tail of the top. Go to the nose at the sketch origin and from there sketch the bottom to the tail.<\p>\
-                <br><p>Option 2: <br>Sketch two control point splines. The first of two selections must be the top of the airfoil.
+                <br><p>Option 2: <br>Sketch two control point splines. The first of two selections must be the top of the airfoil. Both splines must meet in the sketch origin.
                 
             """
 
